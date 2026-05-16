@@ -12,6 +12,18 @@ Run `just --list` for live help. This page is checked by `just docs-check`; upda
 
 ## Hugging Face
 
+Short commands for everyday model discovery:
+
+| Command | Purpose |
+|---|---|
+| `just search "whisper turbo" 10` | Search Hub models by query. |
+| `just files openai/whisper-tiny` | List repo files and sizes without downloading. |
+| `just download openai/whisper-tiny` | Download conversion-friendly files to `input/hf/` with Hub progress bars. |
+| `just local` | List local HF downloads with manifests. |
+| `just auth` | Check auth status; use `HF_TOKEN` or `hf auth login` for gated models. |
+
+Full Hugging Face recipes:
+
 | Command | Purpose |
 |---|---|
 | `just hf-search whisper 10` | Search Hub models. |

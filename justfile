@@ -38,6 +38,10 @@ docs-check:
 hf-search query="whisper" limit="10":
     {{uv}} run --python {{python_version}} --with huggingface-hub python tools/hf_models.py search "{{query}}" --limit {{limit}}
 
+# Short alias: search Hugging Face models.
+search query="whisper" limit="10":
+    just hf-search "{{query}}" "{{limit}}"
+
 # Show Hugging Face model metadata.
 hf-info repo revision="":
     {{uv}} run --python {{python_version}} --with huggingface-hub python tools/hf_models.py info "{{repo}}" {{if revision == "" { "" } else { "--revision " + revision }}}
@@ -46,9 +50,17 @@ hf-info repo revision="":
 hf-files repo limit="80" revision="":
     {{uv}} run --python {{python_version}} --with huggingface-hub python tools/hf_models.py files "{{repo}}" --limit {{limit}} {{if revision == "" { "" } else { "--revision " + revision }}}
 
+# Short alias: list Hugging Face repo files without downloading.
+files repo limit="80" revision="":
+    just hf-files "{{repo}}" "{{limit}}" "{{revision}}"
+
 # Download a clean local Hugging Face model folder under input/hf/<repo>.
 hf-download repo preset="conversion" revision="":
     {{uv}} run --python {{python_version}} --with huggingface-hub python tools/hf_models.py download "{{repo}}" --preset "{{preset}}" --output-dir "{{hf_model_dir}}" {{if revision == "" { "" } else { "--revision " + revision }}}
+
+# Short alias: download a Hugging Face model with progress and a source manifest.
+download repo preset="conversion" revision="":
+    just hf-download "{{repo}}" "{{preset}}" "{{revision}}"
 
 # Download only tokenizer/config/model-card style files; useful before pulling weights.
 hf-download-minimal repo revision="":
@@ -58,9 +70,17 @@ hf-download-minimal repo revision="":
 hf-local:
     {{uv}} run --python {{python_version}} --with huggingface-hub python tools/hf_models.py local --output-dir "{{hf_model_dir}}"
 
+# Short alias: list local Hugging Face model folders.
+local:
+    just hf-local
+
 # Check whether Hugging Face auth is configured. For gated models, set HF_TOKEN or run `hf auth login`.
 hf-auth:
     {{uv}} run --python {{python_version}} --with huggingface-hub python tools/hf_models.py auth
+
+# Short alias: check Hugging Face auth status.
+auth:
+    just hf-auth
 
 # Network smoke test for Hugging Face search/file listing. Does not download weights.
 hf-smoke:

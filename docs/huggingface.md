@@ -5,23 +5,29 @@ Goal: search and download models without polluting the repo root.
 ## Search first
 
 ```bash
-just hf-search whisper 10
+just search "whisper turbo" 10
 just hf-info openai/whisper-large-v3-turbo
-just hf-files openai/whisper-large-v3-turbo
+just files openai/whisper-large-v3-turbo
+```
+
+Quote queries with spaces. Increase the limit only when you need a broader scan:
+
+```bash
+just search "onnx speech recognition" 20
 ```
 
 ## Download safely
 
-Start small:
+Start small with metadata only:
 
 ```bash
-just hf-download-minimal openai/whisper-large-v3-turbo
+just download openai/whisper-large-v3-turbo minimal
 ```
 
-Then download conversion-friendly files:
+Then download conversion-friendly files. Hugging Face Hub shows download progress bars, and the helper prints the selected preset, target folder, file count, local size, and manifest path.
 
 ```bash
-just hf-download openai/whisper-large-v3-turbo
+just download openai/whisper-large-v3-turbo
 ```
 
 Default download folder:

@@ -42,16 +42,32 @@ docs/           compact project docs
 
 Large artifacts are ignored by git.
 
-## Hugging Face examples
+## Hugging Face CLI examples
+
+Use the short `just` commands for the common find -> preview -> download loop:
 
 ```bash
-just hf-search whisper 10
-just hf-files openai/whisper-large-v3-turbo
-just hf-download-minimal openai/whisper-large-v3-turbo
-just hf-download openai/whisper-large-v3-turbo
+# Find models by text query; quote queries with spaces.
+just search "whisper turbo" 10
+just search "onnx speech recognition" 20
+
+# Preview repository files and sizes before downloading weights.
+just files openai/whisper-large-v3-turbo
+
+# Start small: download configs, tokenizer, model card, and other metadata only.
+just download openai/whisper-large-v3-turbo minimal
+
+# Download conversion-friendly files with Hub progress bars.
+# Default preset is "conversion": configs/tokenizers plus *.safetensors and *.onnx,
+# while skipping legacy/checkpoint formats such as *.bin, *.pt, *.ckpt, and *.h5.
+just download openai/whisper-large-v3-turbo
+
+# See local downloads and their pinned source revisions.
+just local
 ```
 
-Downloads go to `input/hf/<repo>/` with a `MODEL_SOURCE.json` manifest.
+Downloads go to `input/hf/<repo>/` with a `MODEL_SOURCE.json` manifest. For gated/private
+models, run `hf auth login` or set `HF_TOKEN`, then check with `just auth`.
 
 ## Documentation
 
