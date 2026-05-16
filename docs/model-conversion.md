@@ -27,6 +27,8 @@ source config/weights: input/whisper-large-v3-turbo/
 dynamic ONNX:          output/onnx/encoder_model_fp16.onnx
 static ONNX:           output/static/encoder_model_fp16_static.onnx
 Samsung upload ONNX:   output/simplified/encoder_model_fp16_static_compact_ln_sim.onnx
+final upload folder:   output/final/
+final upload file:     output/final/SAMSUNG_UPLOAD_WHISPER_ENCODER.onnx
 config:                configs/whisper-large-v3-turbo-samsung.json
 ```
 
@@ -42,11 +44,13 @@ Prepare for Samsung SDK Service:
 just prepare-samsung
 ```
 
-Upload this file first:
+Upload only this final file:
 
 ```text
-output/simplified/encoder_model_fp16_static_compact_ln_sim.onnx
+output/final/SAMSUNG_UPLOAD_WHISPER_ENCODER.onnx
 ```
+
+Do not upload older/intermediate models from `output/onnx`, `output/static`, or `output/simplified`.
 
 ## Validation policy
 
@@ -77,8 +81,8 @@ just eais-init
 
 The generated workspace defaults to `output/eais/whisper-large-v3-turbo` and hardlinks
 `model.onnx` to avoid duplicating the 1.2 GB artifact when possible. The conservative
-`safe` profile disables Samsung-side ONNX simplification because this repo already applies
-ONNX simplification with Whisper-specific safeguards:
+`safe` profile disables Samsung-side ONNX simplification, uses `profile_batchsize=1` to
+reduce quantizer profiler memory, and keeps the repo's Whisper-specific graph safeguards:
 
 ```bash
 just eais-conversion

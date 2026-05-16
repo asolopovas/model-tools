@@ -72,4 +72,5 @@ output/*/*
 !output/simplified/.gitkeep
 !output/quantized/.gitkeep
 !output/samsung/.gitkeep
+!output/final/.gitkeep
 !output/reports/.gitkeep

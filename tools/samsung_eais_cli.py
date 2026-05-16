@@ -31,6 +31,8 @@ PROFILE_OVERRIDES: dict[str, list[str]] = {
         "float32",
         "--graph_opt",
         "none",
+        "--profile_batchsize",
+        "1",
         "--target",
         "NPU",
     ],
@@ -46,6 +48,8 @@ PROFILE_OVERRIDES: dict[str, list[str]] = {
         "float32",
         "--graph_opt",
         "none",
+        "--profile_batchsize",
+        "1",
         "--target",
         "NPU",
     ],
@@ -140,6 +144,7 @@ converter:
   activation_bitwidth: 8
   bw_kernel: 8
   calibration_method: percentile
+  profile_batchsize: 1
   input_dtype: float32
   output_dtype: float32
   graph_opt: none

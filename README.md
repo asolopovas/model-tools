@@ -11,19 +11,27 @@ Hugging Face / safetensors -> ONNX FP16 -> static-shape ONNX -> compact FP32 Lay
 ## Quick start
 
 ```bash
-just setup
+just install
 just test-current
 just prepare-samsung
 ```
 
-Current Samsung upload candidate:
+Final Samsung upload folder:
 
 ```text
-output/simplified/encoder_model_fp16_static_compact_ln_sim.onnx
+output/final/
+```
+
+Upload only this ONNX file from that folder:
+
+```text
+output/final/SAMSUNG_UPLOAD_WHISPER_ENCODER.onnx
 ```
 
 This candidate is simplified with ONNX Simplifier's `fuse_qkv` optimization disabled and
 Whisper query-scale `Mul` folded into `q_proj` weights for Samsung EAIS compatibility.
+
+`just prepare-samsung` refreshes this final folder and removes any older `.onnx` files from it.
 
 For local Samsung Exynos AI Studio CLI testing, create a reproducible `eais` workspace:
 

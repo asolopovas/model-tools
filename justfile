@@ -11,6 +11,9 @@ input_dir := env_var_or_default("INPUT_DIR", "input/whisper-large-v3-turbo")
 hf_model_dir := env_var_or_default("HF_MODEL_DIR", "input/hf")
 output_dir := env_var_or_default("OUTPUT_DIR", "output")
 reports_dir := env_var_or_default("REPORTS_DIR", "output/reports")
+final_dir := env_var_or_default("FINAL_DIR", "output/final")
+final_model_name := env_var_or_default("FINAL_MODEL_NAME", "SAMSUNG_UPLOAD_WHISPER_ENCODER.onnx")
+final_model := env_var_or_default("FINAL_MODEL", "output/final/SAMSUNG_UPLOAD_WHISPER_ENCODER.onnx")
 eais_workspace := env_var_or_default("EAIS_WORKSPACE", "output/eais/whisper-large-v3-turbo")
 eais_device := env_var_or_default("EAIS_DEVICE", "Gen-8")
 
@@ -29,6 +32,20 @@ _default:
 # Show available tasks.
 help:
     @just --list
+
+# Install Python dependencies and create the local workspace folders.
+install:
+    {{uv}} sync
+    {{uv}} run --python {{python_version}} python tools/workspace.py setup
+    {{uv}} run --python {{python_version}} python -c "import huggingface_hub, numpy, onnx, onnxruntime, onnxsim, yaml; print('Python dependencies OK')"
+    @echo "Samsung eais CLI is proprietary; install it separately from Samsung if you need local conversion, then run: just eais-check"
+
+# Install optional PyTorch/Optimum export dependencies too. This is large and slower than `just install`.
+install-export:
+    {{uv}} sync --extra export
+    {{uv}} run --python {{python_version}} python tools/workspace.py setup
+    {{uv}} run --python {{python_version}} python -c "import huggingface_hub, numpy, onnx, onnxruntime, onnxsim, torch, transformers, yaml; print('Python export dependencies OK')"
+    @echo "Samsung eais CLI is proprietary; install it separately from Samsung if you need local conversion, then run: just eais-check"
 
 # Create the standard workspace folders.
 setup:
@@ -135,7 +152,8 @@ prepare-samsung: setup static
     just check "{{compact_ln_sim_model}}"
     just verify-static "{{compact_ln_sim_model}}"
     just verify-samsung "{{compact_ln_sim_model}}"
-    just upload-list "{{compact_ln_sim_model}}"
+    just final-samsung "{{compact_ln_sim_model}}"
+    just upload-list "{{final_dir}}/{{final_model_name}}"
 
 # Optional generic simplification helper.
 simplify static_model=static_model sim_model=sim_model:
@@ -148,8 +166,12 @@ simplify static_model=static_model sim_model=sim_model:
 hash +files:
     {{uv}} run --python {{python_version}} python tools/hash_model.py {{files}}
 
+# Create/refresh the single final folder used for Samsung uploads.
+final-samsung model=compact_ln_sim_model final_dir=final_dir name=final_model_name:
+    {{uv}} run --python {{python_version}} python tools/workspace.py publish-final "{{model}}" --final-dir "{{final_dir}}" --name "{{name}}" --input-name "{{input_name}}" --input-shape "[1, 128, 3000]" --output-name "last_hidden_state" --output-shape "[1, 1500, 1280]"
+
 # Show which model file to upload/convert first.
-upload-list model=compact_ln_sim_model:
+upload-list model=final_model:
     {{uv}} run --python {{python_version}} python tools/workspace.py upload-list "{{model}}" --input-dir "{{input_dir}}"
 
 # Check whether Samsung Exynos AI Studio's `eais` CLI is available on PATH.
@@ -185,7 +207,7 @@ eais-profiling workspace=eais_workspace:
     {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run profiling --workspace "{{workspace}}" --execute
 
 # Non-destructive test of the current real model artifacts.
-test-current: inspect check inspect-static check-static verify-static verify-samsung upload-list
+test-current: inspect check inspect-static check-static verify-static verify-samsung final-samsung upload-list
 
 # Smoke-test the conversion recipes on a tiny generated ONNX model, including simplify and clean-generated.
 test-smoke: setup
