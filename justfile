@@ -11,6 +11,8 @@ input_dir := env_var_or_default("INPUT_DIR", "input/whisper-large-v3-turbo")
 hf_model_dir := env_var_or_default("HF_MODEL_DIR", "input/hf")
 output_dir := env_var_or_default("OUTPUT_DIR", "output")
 reports_dir := env_var_or_default("REPORTS_DIR", "output/reports")
+eais_workspace := env_var_or_default("EAIS_WORKSPACE", "output/eais/whisper-large-v3-turbo")
+eais_device := env_var_or_default("EAIS_DEVICE", "Gen-8")
 
 # Whisper large-v3 / large-v3-turbo encoder, 30-second window.
 model := env_var_or_default("MODEL", "output/onnx/encoder_model_fp16.onnx")
@@ -116,6 +118,10 @@ check-static static_model=static_model:
 verify-static static_model=static_model:
     {{uv}} run --python {{python_version}} --with onnx python tools/verify_static_onnx.py "{{static_model}}"
 
+# Run Samsung SDK Service documented preflight checks on an ONNX upload candidate.
+verify-samsung model=compact_ln_sim_model:
+    {{uv}} run --python {{python_version}} --with onnx python tools/verify_samsung_onnx.py "{{model}}" --input-name "{{input_name}}" --input-shape "{{input_shape}}"
+
 # Build and verify the static model.
 prepare: setup static check-static verify-static
 
@@ -124,9 +130,11 @@ prepare-samsung: setup static
     {{uv}} run --python {{python_version}} python tools/workspace.py ensure-parent "{{compact_ln_static_model}}"
     {{uv}} run --python {{python_version}} --with onnx --with numpy python tools/onnx_compact_fp32_layernorm.py "{{static_model}}" "{{compact_ln_static_model}}" --check
     {{uv}} run --python {{python_version}} python tools/workspace.py ensure-parent "{{compact_ln_sim_model}}"
-    {{uv}} run --python {{python_version}} --with onnx --with onnxruntime --with onnxsim python -m onnxsim "{{compact_ln_static_model}}" "{{compact_ln_sim_model}}"
+    {{uv}} run --python {{python_version}} --with onnx --with onnxruntime --with onnxsim python -m onnxsim "{{compact_ln_static_model}}" "{{compact_ln_sim_model}}" --skip-optimization fuse_qkv
+    {{uv}} run --python {{python_version}} --with onnx --with numpy python tools/onnx_fold_whisper_q_scale.py "{{compact_ln_sim_model}}" "{{compact_ln_sim_model}}" --check
     just check "{{compact_ln_sim_model}}"
     just verify-static "{{compact_ln_sim_model}}"
+    just verify-samsung "{{compact_ln_sim_model}}"
     just upload-list "{{compact_ln_sim_model}}"
 
 # Optional generic simplification helper.
@@ -144,8 +152,40 @@ hash +files:
 upload-list model=compact_ln_sim_model:
     {{uv}} run --python {{python_version}} python tools/workspace.py upload-list "{{model}}" --input-dir "{{input_dir}}"
 
+# Check whether Samsung Exynos AI Studio's `eais` CLI is available on PATH.
+eais-check:
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py check
+
+# Create/update a local Samsung EAIS CLI workspace with the prepared ONNX candidate.
+eais-workspace workspace=eais_workspace device=eais_device model=compact_ln_sim_model:
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py workspace --workspace "{{workspace}}" --device "{{device}}" --model "{{model}}" --overwrite --overwrite-config
+
+# Print a reproducible Samsung `eais` command without running it. Profiles for conversion: safe, no-quant, baseline-no-simplify.
+eais-command command="conversion" workspace=eais_workspace profile="safe":
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run "{{command}}" --workspace "{{workspace}}" --profile "{{profile}}"
+
+# Run `eais init` in the local Samsung CLI workspace to let Samsung create native templates.
+eais-init workspace=eais_workspace:
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run init --workspace "{{workspace}}" --execute
+
+# Run `eais generation` in the local Samsung CLI workspace.
+eais-generation workspace=eais_workspace:
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run generation --workspace "{{workspace}}" --execute
+
+# Run `eais conversion` in the local Samsung CLI workspace. Profiles: safe, no-quant, baseline-no-simplify.
+eais-conversion workspace=eais_workspace profile="safe":
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run conversion --workspace "{{workspace}}" --profile "{{profile}}" --execute
+
+# Run `eais compile` in the local Samsung CLI workspace.
+eais-compile workspace=eais_workspace profile="safe":
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run compile --workspace "{{workspace}}" --profile "{{profile}}" --execute
+
+# Run `eais profiling` in the local Samsung CLI workspace.
+eais-profiling workspace=eais_workspace:
+    {{uv}} run --python {{python_version}} python tools/samsung_eais_cli.py run profiling --workspace "{{workspace}}" --execute
+
 # Non-destructive test of the current real model artifacts.
-test-current: inspect check inspect-static check-static verify-static upload-list
+test-current: inspect check inspect-static check-static verify-static verify-samsung upload-list
 
 # Smoke-test the conversion recipes on a tiny generated ONNX model, including simplify and clean-generated.
 test-smoke: setup

@@ -45,12 +45,29 @@ Full Hugging Face recipes:
 | `just check-static` | Run ONNX checker on the static model. |
 | `just static` | Convert configured dynamic input shape to fixed shape. |
 | `just verify-static` | Fail if graph metadata still contains unknown/dynamic shapes. |
+| `just verify-samsung` | Run Samsung SDK Service documented preflight checks on an upload candidate. |
 | `just prepare` | Run `setup`, `static`, `check-static`, and `verify-static`. |
 | `just prepare-samsung` | Build and validate the single Samsung SDK Service upload candidate currently under test. |
 | `just simplify` | Run `onnxsim` on the static model. |
 | `just upload-list` | Print the Samsung SDK Service upload target. |
 | `just hash input/whisper-large-v3-turbo/config.json` | Stream-hash one or more files. |
 | `just clean-generated` | Delete generated static/simplified outputs. Use explicit paths for tests. |
+
+## Samsung EAIS CLI
+
+These recipes wrap Samsung Exynos AI Studio's `eais` CLI when it is installed in the current shell/WSL environment.
+
+| Command | Purpose |
+|---|---|
+| `just eais-check` | Check whether `eais` is on `PATH` and print package/help information. |
+| `just eais-workspace` | Create/update `output/eais/whisper-large-v3-turbo` with the prepared ONNX and EAIS config files. |
+| `just eais-command conversion` | Print the recommended `eais conversion` command without running it. |
+| `just eais-init` | Run `eais init` in the local EAIS workspace to let Samsung create native templates. |
+| `just eais-generation` | Run `eais generation` in the local EAIS workspace. |
+| `just eais-conversion` | Run `eais conversion` with the conservative `safe` profile. |
+| `just eais-conversion output/eais/whisper-large-v3-turbo no-quant` | Run conversion with quantization disabled for isolation. |
+| `just eais-compile` | Run `eais compile` in the local EAIS workspace. |
+| `just eais-profiling` | Run `eais profiling` in the local EAIS workspace. |
 
 ## Tests
 
@@ -68,4 +85,5 @@ All paths/settings can be overridden with environment variables:
 MODEL=output/onnx/my.onnx STATIC_MODEL=output/static/my_static.onnx just prepare
 INPUT_NAME=input_features INPUT_SHAPE=1,128,3000 just static
 HF_MODEL_DIR=D:/models/hf just hf-download openai/whisper-tiny
+EAIS_WORKSPACE=output/eais/test EAIS_DEVICE=Gen-8 just eais-workspace
 ```

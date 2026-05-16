@@ -22,6 +22,18 @@ Current Samsung upload candidate:
 output/simplified/encoder_model_fp16_static_compact_ln_sim.onnx
 ```
 
+This candidate is simplified with ONNX Simplifier's `fuse_qkv` optimization disabled and
+Whisper query-scale `Mul` folded into `q_proj` weights for Samsung EAIS compatibility.
+
+For local Samsung Exynos AI Studio CLI testing, create a reproducible `eais` workspace:
+
+```bash
+just eais-workspace
+just eais-command conversion
+# when Samsung's eais CLI is installed in the current shell/WSL:
+just eais-conversion
+```
+
 Current Whisper encoder shape:
 
 ```text
