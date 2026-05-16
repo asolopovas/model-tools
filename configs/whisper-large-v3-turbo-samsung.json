@@ -1,0 +1,16 @@
+{
+  "name": "whisper-large-v3-turbo",
+  "target": "samsung-sdk-service",
+  "source_dir": "input/whisper-large-v3-turbo",
+  "onnx_model": "output/onnx/encoder_model_fp16.onnx",
+  "static_model": "output/static/encoder_model_fp16_static.onnx",
+  "simplified_model": "output/simplified/encoder_model_fp16_static_sim.onnx",
+  "input_name": "input_features",
+  "input_shape": [1, 128, 3000],
+  "precision": "fp16",
+  "notes": [
+    "Whisper large-v3/large-v3-turbo encoder input is a 30 second log-mel window.",
+    "Upload the static ONNX first to Samsung SDK Service.",
+    "Tokenizer/preprocessor/config files are app/runtime assets, not NPU binaries."
+  ]
+}

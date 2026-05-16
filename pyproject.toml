@@ -1,0 +1,30 @@
+[project]
+name = "model-tools"
+version = "0.1.0"
+description = "Clean local workspace for model inspection, download, and conversion prep."
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "huggingface-hub[hf-xet]>=0.24",
+  "onnx>=1.16",
+  "onnxruntime>=1.18",
+  "onnxsim>=0.4.36",
+  "numpy>=1.26",
+  "safetensors>=0.4",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+export = [
+  "torch>=2.3",
+  "transformers>=4.46",
+  "optimum[onnxruntime]>=1.23",
+]
+dev = [
+  "ruff>=0.5",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100

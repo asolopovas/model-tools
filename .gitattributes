@@ -1,0 +1,44 @@
+# Normalize text files for cross-platform development.
+* text=auto eol=lf
+
+# Windows-native scripts/configs.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Source/docs/configs should diff cleanly.
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+justfile text eol=lf
+AGENTS.md text eol=lf
+README.md text eol=lf
+
+# Binary model/artifact formats: never attempt textual merges/diffs.
+*.onnx binary
+*.safetensors binary
+*.gguf binary
+*.tflite binary
+*.bin binary
+*.pt binary
+*.pth binary
+*.ckpt binary
+*.h5 binary
+*.msgpack binary
+*.npz binary
+*.npy binary
+*.zip binary
+*.tar binary
+*.tar.gz binary
+*.7z binary
+
+# Media/binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary

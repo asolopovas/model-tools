@@ -1,0 +1,140 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "model-tools: setup",
+      "type": "shell",
+      "command": "just",
+      "args": ["setup"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: list tasks",
+      "type": "shell",
+      "command": "just",
+      "args": ["--list"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: docs-check",
+      "type": "shell",
+      "command": "just",
+      "args": ["docs-check"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: test-current",
+      "type": "shell",
+      "command": "just",
+      "args": ["test-current"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: test-smoke",
+      "type": "shell",
+      "command": "just",
+      "args": ["test-smoke"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: test-all",
+      "type": "shell",
+      "command": "just",
+      "args": ["test-all"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: prepare Samsung static ONNX",
+      "type": "shell",
+      "command": "just",
+      "args": ["prepare"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: inspect ONNX",
+      "type": "shell",
+      "command": "just",
+      "args": ["inspect", "${input:modelPath}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: verify static ONNX",
+      "type": "shell",
+      "command": "just",
+      "args": ["verify-static", "${input:staticModelPath}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: HF search",
+      "type": "shell",
+      "command": "just",
+      "args": ["hf-search", "${input:hfQuery}", "${input:hfLimit}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: HF files",
+      "type": "shell",
+      "command": "just",
+      "args": ["hf-files", "${input:hfRepo}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: HF download minimal",
+      "type": "shell",
+      "command": "just",
+      "args": ["hf-download-minimal", "${input:hfRepo}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: HF download conversion",
+      "type": "shell",
+      "command": "just",
+      "args": ["hf-download", "${input:hfRepo}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "model-tools: upload list",
+      "type": "shell",
+      "command": "just",
+      "args": ["upload-list"],
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "modelPath",
+      "type": "promptString",
+      "description": "ONNX model path",
+      "default": "output/onnx/encoder_model_fp16.onnx"
+    },
+    {
+      "id": "staticModelPath",
+      "type": "promptString",
+      "description": "Static ONNX model path",
+      "default": "output/static/encoder_model_fp16_static.onnx"
+    },
+    {
+      "id": "hfQuery",
+      "type": "promptString",
+      "description": "Hugging Face search query",
+      "default": "whisper"
+    },
+    {
+      "id": "hfLimit",
+      "type": "promptString",
+      "description": "Search result limit",
+      "default": "10"
+    },
+    {
+      "id": "hfRepo",
+      "type": "promptString",
+      "description": "Hugging Face model repo id",
+      "default": "openai/whisper-large-v3-turbo"
+    }
+  ]
+}

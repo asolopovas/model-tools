@@ -1,0 +1,75 @@
+# Python / uv
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local environment/secrets
+.env
+.env.*
+!.env.example
+*.token
+*.key
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+
+# Hugging Face/cache metadata
+.hf-cache/
+.cache/
+**/.cache/huggingface/
+
+# Logs/temp
+*.log
+logs/
+tmp/
+temp/
+
+# Large source model files under input
+input/hf/*
+!input/hf/.gitkeep
+input/*/*.safetensors
+input/*/*.bin
+input/*/*.pt
+input/*/*.pth
+input/*/*.ckpt
+input/*/*.h5
+input/*/*.msgpack
+input/*/*.onnx
+input/*/*.gguf
+
+# Generated model artifacts and reports
+output/*
+!output/*/
+output/*/*
+!output/*/.gitkeep
+*.onnx
+*.safetensors
+*.gguf
+*.tflite
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.msgpack
+
+# Keep workspace placeholders trackable
+!input/hf/.gitkeep
+!output/onnx/.gitkeep
+!output/static/.gitkeep
+!output/simplified/.gitkeep
+!output/quantized/.gitkeep
+!output/samsung/.gitkeep
+!output/reports/.gitkeep
