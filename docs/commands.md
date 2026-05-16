@@ -46,6 +46,7 @@ Full Hugging Face recipes:
 | `just static` | Convert configured dynamic input shape to fixed shape. |
 | `just verify-static` | Fail if graph metadata still contains unknown/dynamic shapes. |
 | `just prepare` | Run `setup`, `static`, `check-static`, and `verify-static`. |
+| `just prepare-samsung` | Build and validate the single Samsung SDK Service upload candidate currently under test. |
 | `just simplify` | Run `onnxsim` on the static model. |
 | `just upload-list` | Print the Samsung SDK Service upload target. |
 | `just hash input/whisper-large-v3-turbo/config.json` | Stream-hash one or more files. |

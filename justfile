@@ -15,6 +15,8 @@ reports_dir := env_var_or_default("REPORTS_DIR", "output/reports")
 # Whisper large-v3 / large-v3-turbo encoder, 30-second window.
 model := env_var_or_default("MODEL", "output/onnx/encoder_model_fp16.onnx")
 static_model := env_var_or_default("STATIC_MODEL", "output/static/encoder_model_fp16_static.onnx")
+compact_ln_static_model := env_var_or_default("COMPACT_LN_STATIC_MODEL", "output/static/encoder_model_fp16_static_compact_ln.onnx")
+compact_ln_sim_model := env_var_or_default("COMPACT_LN_SIM_MODEL", "output/simplified/encoder_model_fp16_static_compact_ln_sim.onnx")
 sim_model := env_var_or_default("SIM_MODEL", "output/simplified/encoder_model_fp16_static_sim.onnx")
 input_name := env_var_or_default("INPUT_NAME", "input_features")
 input_shape := env_var_or_default("INPUT_SHAPE", "1,128,3000")
@@ -114,10 +116,20 @@ check-static static_model=static_model:
 verify-static static_model=static_model:
     {{uv}} run --python {{python_version}} --with onnx python tools/verify_static_onnx.py "{{static_model}}"
 
-# Build and verify the static model for Samsung SDK Service.
+# Build and verify the static model.
 prepare: setup static check-static verify-static
 
-# Optional fallback if Samsung still rejects the static model.
+# Build the single Samsung SDK Service upload candidate currently under test.
+prepare-samsung: setup static
+    {{uv}} run --python {{python_version}} python tools/workspace.py ensure-parent "{{compact_ln_static_model}}"
+    {{uv}} run --python {{python_version}} --with onnx --with numpy python tools/onnx_compact_fp32_layernorm.py "{{static_model}}" "{{compact_ln_static_model}}" --check
+    {{uv}} run --python {{python_version}} python tools/workspace.py ensure-parent "{{compact_ln_sim_model}}"
+    {{uv}} run --python {{python_version}} --with onnx --with onnxruntime --with onnxsim python -m onnxsim "{{compact_ln_static_model}}" "{{compact_ln_sim_model}}"
+    just check "{{compact_ln_sim_model}}"
+    just verify-static "{{compact_ln_sim_model}}"
+    just upload-list "{{compact_ln_sim_model}}"
+
+# Optional generic simplification helper.
 simplify static_model=static_model sim_model=sim_model:
     {{uv}} run --python {{python_version}} python tools/workspace.py require-file "{{static_model}}"
     {{uv}} run --python {{python_version}} python tools/workspace.py ensure-parent "{{sim_model}}"
@@ -129,8 +141,8 @@ hash +files:
     {{uv}} run --python {{python_version}} python tools/hash_model.py {{files}}
 
 # Show which model file to upload/convert first.
-upload-list static_model=static_model:
-    {{uv}} run --python {{python_version}} python tools/workspace.py upload-list "{{static_model}}" --input-dir "{{input_dir}}"
+upload-list model=compact_ln_sim_model:
+    {{uv}} run --python {{python_version}} python tools/workspace.py upload-list "{{model}}" --input-dir "{{input_dir}}"
 
 # Non-destructive test of the current real model artifacts.
 test-current: inspect check inspect-static check-static verify-static upload-list

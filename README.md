@@ -5,7 +5,7 @@ Clean, cross-platform workspace for model search, download, inspection, and conv
 Current primary workflow:
 
 ```text
-Hugging Face / safetensors -> ONNX FP16 -> static-shape ONNX -> Samsung SDK Service
+Hugging Face / safetensors -> ONNX FP16 -> static-shape ONNX -> compact FP32 LayerNorm -> Samsung SDK Service
 ```
 
 ## Quick start
@@ -13,14 +13,13 @@ Hugging Face / safetensors -> ONNX FP16 -> static-shape ONNX -> Samsung SDK Serv
 ```bash
 just setup
 just test-current
-just prepare
-just upload-list
+just prepare-samsung
 ```
 
 Current Samsung upload candidate:
 
 ```text
-output/static/encoder_model_fp16_static.onnx
+output/simplified/encoder_model_fp16_static_compact_ln_sim.onnx
 ```
 
 Current Whisper encoder shape:
